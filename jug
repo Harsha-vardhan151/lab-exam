@@ -1,0 +1,53 @@
+class State:
+    def __init__(self, jug1, jug2):
+        self.jug1 = jug1
+        self.jug2 = jug2
+
+    def __str__(self):
+        return f"({self.jug1}, {self.jug2})"
+
+    def __eq__(self, other):
+        return self.jug1 == other.jug1 and self.jug2 == other.jug2
+
+    def __hash__(self):
+        return hash((self.jug1, self.jug2))
+
+
+def dfs(current, visited, jug1_capacity, jug2_capacity, target):
+    if current.jug1 == target or current.jug2 == target:
+        return True, [current]
+    visited.add(current)
+    actions = [
+        (0, current.jug2),
+        (current.jug1, 0),
+        (jug1_capacity, current.jug2),
+        (current.jug1, jug2_capacity),
+        (min(current.jug1 + current.jug2, jug1_capacity), max(0, current.jug1 + current.jug2 - jug1_capacity)),
+        (max(0, current.jug1 + current.jug2 - jug2_capacity), min(current.jug1 + current.jug2, jug2_capacity))
+    ]
+    for action in actions:
+        next_state = State(action[0], action[1])
+        if next_state not in visited:
+            found, path = dfs(next_state, visited, jug1_capacity, jug2_capacity, target)
+            if found:
+                return True, [current] + path
+    return False, []
+
+
+def water_jug_dfs(jug1_capacity, jug2_capacity, target):
+    initial_state = State(0, 0)
+    visited = set()
+    found, path = dfs(initial_state, visited, jug1_capacity, jug2_capacity, target)
+    if found:
+        print("Path Found:")
+        for state in path:
+            print(state)
+    else:
+        print("Path not found")
+
+
+# Example usage
+jug1_capacity = 4
+jug2_capacity = 3
+target = 2
+water_jug_dfs(jug1_capacity, jug2_capacity, target)
